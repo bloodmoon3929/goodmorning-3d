@@ -1,0 +1,7 @@
+# 파이프라인 중간 결과 · 환경
+pipeline/work/
+pipeline/output/
+__pycache__/
+.venv/
+# Pages 빌드
+_site/
