@@ -1,0 +1,69 @@
+{
+ "name": "포치타 인형",
+ "video": {
+  "file": "capture/pochita/20261123_091242.mp4",
+  "extract_rate": 120,
+  "about": "손에 들고 한 바퀴 돌려 찍은 15.8초 영상 (휴대폰, 30fps 가변). frames.py는 120fps로 뽑아서 프레임 N = (N−1)/120초"
+ },
+ "methods": [
+  {
+   "id": "gs",
+   "label": "가우시안 스플래팅",
+   "sub": "영상 · 이 저장소 파이프라인",
+   "file": "gs.ply",
+   "frame": "sfm",
+   "sfm": "sfm",
+   "facts": {
+    "input": "영상 프레임 140장 (+ 확인용 20장)",
+    "poses": "ALIKED + LightGlue → COLMAP, 375/380장",
+    "psnr": "16.7dB (학습에 안 쓴 20장)",
+    "time": "약 15분 (A6000, 분할 · SfM · 학습 · 렌더)",
+    "note": "실제 모양(톱 · 꼬리 · 태그)이 남는다. 옆 · 뒤 가장자리에 반투명 잡티, 손에 닿았던 바닥은 거칠다"
+   }
+  },
+  {
+   "id": "sam3d",
+   "label": "SAM 3D Objects",
+   "sub": "사진 1장",
+   "file": "sam3d.ply",
+   "web": "sam3d.splat",
+   "frame": "camera",
+   "input": {"image": "sam3d_input/0001.jpg", "mask": "sam3d_input/0001_mask.png", "frame": "0001.jpg"},
+   "facts": {
+    "input": "첫 프레임 사진 1장 + SAM 3 마스크",
+    "poses": "없음 (입력 사진의 카메라 좌표로 나온다)",
+    "psnr": "—",
+    "time": "추론 54초 + 모델 불러오기 30초 (A6000)",
+    "note": "입력 사진 쪽은 깨끗하다. 안 찍힌 면은 모델이 추정 — 꼬리가 없고 톱 모양 · 몸통 비율이 실제와 다르다"
+   }
+  },
+  {
+   "id": "gausify_colmap",
+   "label": "Gausify Orbit",
+   "sub": "COLMAP 자세",
+   "file": "gausify_colmap.ply",
+   "frame": "vertical",
+   "facts": {
+    "input": "같은 영상 → 선명한 프레임 160장, SAM 2.1 분할",
+    "poses": "COLMAP SIFT · 전역 매핑, 30/160장 (8조각 중 가장 큰 것)",
+    "psnr": "21.9dB (확인용 2장 — 자세를 찾은 좁은 구간 안이라 비교 기준이 아니다)",
+    "time": "자세 2.5분 + 학습 7분 (브라우저 WebGPU)",
+    "note": "자세를 찾은 구간에서 보이는 면만 흐린 조각으로 남았다. 카메라 정보가 없어 처음 각도는 임의"
+   }
+  },
+  {
+   "id": "gausify_akaze",
+   "label": "Gausify Orbit",
+   "sub": "AKAZE 자세 (기본)",
+   "file": "gausify_akaze.ply",
+   "frame": "vertical",
+   "facts": {
+    "input": "같은 영상 → 선명한 프레임 160장, SAM 2.1 분할",
+    "poses": "AKAZE, 17/160장",
+    "psnr": "36.7dB (확인용 2장 — 자세를 찾은 좁은 구간 안이라 비교 기준이 아니다)",
+    "time": "14분 (프레임 2 · 분할 1.5 · 자세 4 · 학습 6분, 브라우저 WebGPU)",
+    "note": "한쪽 면 조각만 남았다. 카메라 정보가 없어 처음 각도는 임의"
+   }
+  }
+ ]
+}
