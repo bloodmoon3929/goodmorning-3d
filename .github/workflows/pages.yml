@@ -1,0 +1,64 @@
+name: 뷰어 배포 (GitHub Pages)
+
+# main: viewer/와 뷰어가 쓰는 assets/ 파일만 모아 GitHub Pages로 올린다.
+#   뷰어가 쓰는 파일 = viewer/data/*/manifest.json에 적힌 3D 파일 · 회전 렌더 + compare.jpg
+#   (SAM 3D 원본 .ply 60MB는 올리지 않고 viewer/data의 .splat을 쓴다)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: 뷰어와 쓰는 파일 모으기
+        run: |
+          mkdir -p _site
+          cp -r viewer _site/viewer
+          python3 - <<'PY'
+          import json, shutil
+          from pathlib import Path
+          site = Path("_site")
+          for m in Path("viewer/data").glob("*/manifest.json"):
+              d = json.loads(m.read_text(encoding="utf-8"))
+              files = [Path("assets") / d["id"] / "compare.jpg"]
+              for x in d["methods"]:
+                  if x["url"].startswith("../assets/"):
+                      files.append(Path(x["url"][3:]))
+                  if "turntable" in x:
+                      files += sorted(Path(x["turntable"]["url"][3:]).parent.glob("turn_*.webp"))
+              for f in files:
+                  (site / f).parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copy(f, site / f)
+              print(d["id"], len(files), "files")
+          PY
+          printf '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=viewer/"><a href="viewer/">goodmorning-3d 뷰어</a>\n' > _site/index.html
+          du -sh _site
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
