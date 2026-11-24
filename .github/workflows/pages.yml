@@ -1,7 +1,7 @@
 name: 뷰어 배포 (GitHub Pages)
 
 # main: viewer/와 뷰어가 쓰는 assets/ 파일만 모아 GitHub Pages로 올린다.
-#   뷰어가 쓰는 파일 = viewer/data/*/manifest.json에 적힌 3D 파일 · 회전 렌더 + compare.jpg
+#   뷰어가 쓰는 파일 = viewer/data/*/manifest.json에 적힌 3D 파일 · 회전 렌더 + compare.jpg (영상마다)
 #   (SAM 3D 원본 .ply 60MB는 올리지 않고 viewer/data의 .splat을 쓴다)
 on:
   push:
@@ -33,9 +33,9 @@ jobs:
           site = Path("_site")
           for m in Path("viewer/data").glob("*/manifest.json"):
               d = json.loads(m.read_text(encoding="utf-8"))
-              files = [Path("assets") / d["id"] / "compare.jpg"]
+              files = [p for p in [Path("assets") / d["id"] / "compare.jpg"] if p.exists()]
               for x in d["methods"]:
-                  if x["url"].startswith("../assets/"):
+                  if x.get("url", "").startswith("../assets/"):
                       files.append(Path(x["url"][3:]))
                   if "turntable" in x:
                       files += sorted(Path(x["turntable"]["url"][3:]).parent.glob("turn_*.webp"))

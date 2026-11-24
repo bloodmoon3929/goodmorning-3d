@@ -1,61 +1,77 @@
-# pipeline — 굿즈 360° 영상 → 3D 에셋
+# pipeline — 굿즈 360° 영상 → 3D 에셋 4가지
 
-손에 들고 한 바퀴 돌려 찍은 굿즈 영상 하나로 3D 가우시안 스플래팅 에셋을 만들고, 비교용 결과(SAM 3D · Gausify)와 함께 뷰어 데이터를 내보낸다.
-GPU(CUDA)가 있는 PC에서 미리 돌리는 오프라인 작업이다. [goodmorning](https://github.com/bloodmoon3929/goodmorning)의 `backend/ai/asset3d`를 옮겨 온 것이다.
+굿즈를 한 바퀴 찍은 영상(또는 사진)으로 3D를 4가지 방법(이 저장소의 가우시안 스플래팅 · SAM 3D · Gausify COLMAP · Gausify AKAZE)으로 만들고, 뷰어 데이터를 내보낸다.
+GPU(CUDA)가 있는 PC에서 미리 돌리는 오프라인 작업이다. [goodmorning](https://github.com/bloodmoon3929/goodmorning)의 `backend/ai/asset3d`를 옮겨 와 자동화를 더했다.
 
 ```mermaid
 flowchart LR
-    v["촬영 영상<br/>(손 위에서 360°)"] --> f["1 frames.py<br/>프레임 사진"]
-    f --> s["2 segment.py<br/>SAM 3 'plush toy'<br/>굿즈 마스크 · 선명도"]
-    s --> m["3 sfm.py<br/>ALIKED + LightGlue<br/>→ COLMAP 카메라 자세"]
-    m --> w["4 views.py<br/>굿즈 중심 자르기<br/>손 · 태그 = ignore"]
-    w --> t["5 train.py<br/>gsplat 3D 가우시안<br/>스플래팅 학습"]
-    t --> r["6 render.py<br/>실루엣 정리<br/>.ply · PSNR"]
-    r --> x["export_viewer.py<br/>뷰어 데이터"]
+    i["input/<br/>영상 · 사진"] --> f["frames.py"] --> s["segment.py<br/>SAM 3 (프롬프트 auto)"] --> m["sfm.py<br/>ALIKED + LightGlue"] --> w["views.py"] --> t["train.py<br/>gsplat"] --> r["render.py<br/>gs.ply"]
+    s --> p["pick_photo.py<br/>얼굴 사진 1장"] --> d["sam3d.py<br/>SAM 3D"]
+    i --> g["gausify.py<br/>헤드리스 Chrome<br/>AKAZE · COLMAP"]
+    r --> x["render_ply · compare<br/>methods.json<br/>export_viewer.py"]
+    d --> x
+    g --> x
 ```
 
 ## 실행
 
+저장소 위의 `../run.sh`가 이 폴더의 `run_all.py`를 부른다 (가상환경 · CUDA 경로를 맞춘 뒤).
+
+```bash
+./run.sh                    # input/ 전부. 이미 만든 결과는 건너뛴다
+./run.sh --only <id> --force
+```
+
+`run_all.py`가 굿즈마다 하는 일 (결과는 `assets/<id>/`, 중간 결과는 `pipeline/work/<id>/` — 저장소에 올리지 않음):
+
+|순서|스크립트|결과|건너뛰는 조건|
+|--|--|--|--|
+|1|frames → segment(`--prompt auto`, 800장 안팎이 되게 간격) → sfm → views(160장) → train(15,000번) → render|`gs.ply` · `sfm/`|둘 다 있으면|
+|2|pick_photo → sam3d (conda 환경 `sam3d-objects`의 python을 직접 부른다)|`sam3d.ply` · `sam3d_input/`|`sam3d.ply`가 있으면|
+|3 · 4|gausify (AKAZE로 끝까지 → COLMAP으로 자세부터 다시)|`gausify_*.ply` · `.log` · `gausify.json`|`gausify.json`이 있거나 .ply가 둘 다 있으면|
+|5|render_ply(72장씩) → compare → methods.json → export_viewer|`turntable/` · `compare.jpg` · `viewer/data/<id>/`|회전 렌더는 72장이 있으면. methods.json은 손으로 쓴 것(`"auto"` 없음)이면 그대로|
+|6|index.json|뷰어 상단 탭 (동영상 1 · 2 · 3, 사진 1 …)|—|
+
+한 방법이 실패해도 나머지는 계속한다. 만들지 못한 방법(예: Gausify가 자세를 2장만 찾음)은 methods.json에 이유를 남기고 뷰어에 "만들지 못함"으로 보인다.
+
+단계를 하나씩 돌릴 때:
+
 ```bash
 cd pipeline
 # 경로에 공백이 있으면 gsplat CUDA 컴파일의 링크가 깨진다 → 가상환경을 공백 없는 곳에
-export UV_PROJECT_ENVIRONMENT=$HOME/.cache/goodmorning-asset3d-venv CUDA_HOME=/usr/local/cuda-12.8 PATH=/usr/local/cuda-12.8/bin:$PATH
-uv sync                        # Python 3.12, torch 2.8 (CUDA 12.8), SAM 3, gsplat, kornia, pycolmap
+export UV_PROJECT_ENVIRONMENT=$HOME/.cache/goodmorning-3d-venv CUDA_HOME=/usr/local/cuda-12.8 PATH=/usr/local/cuda-12.8/bin:$PATH
+uv sync                        # Python 3.12, torch 2.8 (CUDA 12.8), SAM 3, gsplat, kornia, pycolmap, playwright
 hf auth login                  # SAM 3 가중치(facebook/sam3)는 접근 승인을 받은 계정이어야 받아진다
-A=../assets/pochita
+W=work/pochita A=../assets/pochita
 
-uv run python frames.py ../capture/pochita/20261123_091242.mp4   # → work/frames (앱 촬영 가이드 zip · 사진 폴더도 된다)
-uv run python segment.py                                          # → work/masks, masks.json
-uv run python sfm.py                                              # → work/sfm (가장 큰 모델: work/sfm/best.txt)
-uv run python views.py --count 160                                # → work/views
-uv run python train.py --steps 15000                              # → work/gaussians.pt
-uv run python render.py --out work/turn --ply $A/gs.ply           # 정리한 3D 파일 · 확인용 PSNR
-cp "$(cat work/sfm/best.txt)"/*.bin $A/sfm/                       # 뷰어가 영상 시간에 맞춰 쓰는 카메라
-
-# 비교: 같은 렌더러 · 같은 카메라 경로로 72장씩 → 비교 그림
-uv run python render_ply.py $A/gs.ply --out $A/turntable/gs --cams work/views/cams.json
-uv run python render_ply.py $A/sam3d.ply --out $A/turntable/sam3d --toward-origin --up 0 1 0
-uv run python compare.py --row "우리 가우시안 (자세 375/380장)" $A/turntable/gs --row "SAM 3D (사진 1장)" $A/turntable/sam3d --cell 180 --out $A/compare.jpg
-
-# 뷰어 데이터: viewer/data/pochita/ (manifest.json · 웹용 영상 · SAM 3D .splat)
+uv run python frames.py ../input/20261123_091242.mp4 --work $W   # 앱 촬영 가이드 zip · 사진 폴더도 된다
+uv run python segment.py --work $W --prompt auto --stride 2
+uv run python sfm.py --work $W
+uv run python views.py --work $W --count 160
+uv run python train.py --work $W --steps 15000
+uv run python render.py --work $W --out $W/turn --ply $A/gs.ply
+uv run python pick_photo.py --work $W                            # → $W/sam3d_frame.txt
+uv run python gausify.py ../input/20261123_091242.mp4 --out $A   # 헤드리스 Chrome + WebGPU
 uv run python export_viewer.py --id pochita
 ```
 
-`work/`는 저장소에 올리지 않는다. gsplat은 처음 실행할 때 CUDA 코드를 컴파일한다 (2분 안팎, `nvcc` 필요). `export_app.py` · `export_compare.py`는 goodmorning 앱 에셋(`frontend/assets/room/<id>/`)으로 내보내는 스크립트다.
+`export_app.py` · `export_compare.py`는 goodmorning 앱 에셋(`frontend/assets/room/<id>/`)으로 내보내는 스크립트다.
 
 ## 단계별로 한 일
 
 |단계|하는 일|정한 것 · 이유|
 |--|--|--|
 |frames|ffmpeg로 가로 720px 프레임|이 영상은 30fps 가변이고 ffmpeg가 120fps로 뽑아 같은 프레임이 4장씩 생긴다. 프레임 N = (N−1)/120초 (뷰어가 이 시간으로 영상과 맞춘다)|
-|segment|프레임마다 SAM 3에 "plush toy"로 물어 가장 점수 높은 영역 1개|손 · 종이 태그는 이 프롬프트에 잡히지 않는다. 흐린 프레임을 거르려고 마스크 안 라플라시안 분산(선명도)도 잰다|
+|segment|프레임마다 SAM 3에 텍스트로 물어 가장 점수 높은 영역 1개. `auto`면 후보("plush toy" · "figurine" · "figure" · "toy" · "doll" …)를 고르게 뽑은 8장에 물어 점수 평균이 가장 높은 것|손 · 종이 태그는 이 프롬프트에 잡히지 않는다. 흐린 프레임을 거르려고 마스크 안 라플라시안 분산(선명도)도 잰다. 피규어는 "figurine"(0.90), 토끼 인형은 "plush toy"가 골라졌다|
 |sfm|마스크 안에서만 ALIKED 특징점 → LightGlue 매칭 → COLMAP 기하 검증 · 증분 복원|손으로 돌리면 배경은 굿즈와 따로 움직여서 굿즈만 보고 맞춘다 ("굿즈는 그대로, 카메라가 주위를 돈다"). 짝은 영상 순서로 가까운 10장 + 16 · 32장 뒤 + 8장마다 고른 프레임끼리 전부(한 바퀴 돌아 처음과 이어지게)|
 |views|SfM에 들어간 프레임 중 160장을 고르게, 굿즈 중심 정사각형 512px. 배경은 흰색|자르면서 초점거리 · 중심점도 같이 옮긴다. SAM 3로 "hand" · "paper tag"도 찾아 굿즈를 가린 곳은 ignore|
 |train|gsplat, 15,000번. 손실 = 색 L1 0.8 + SSIM 0.2 + 윤곽(alpha ↔ 마스크) 0.5, ignore는 빼고|ignore를 빼지 않으면 손이 가린 자리가 "비어 있음"으로 학습되어 구멍이 생긴다. 8장마다 1장은 학습에 안 쓰고 확인용|
 |render|학습 사진에서 마스크 밖에 놓이는 비율이 25% 넘는 가우시안 · 너무 큰 조각을 지우고, 서로 붙어 있는 가장 큰 덩어리만 남긴다|가장자리의 반투명 "지느러미"와, 카메라 가까이에 생긴 작은 복사본 덩어리를 지운다. 확인용 사진은 정리에도 쓰지 않고 PSNR만 잰다|
+|pick_photo|SAM 3D에 넣을 사진: 굿즈가 잘 잡히고 선명한 프레임 24장에서 SAM 3로 "face"를 찾아, 굿즈 안의 얼굴 점수가 가장 높은 사진 (없으면 가장 크게 찍힌 사진). .json의 `sam3d_frame`으로 직접 정할 수 있다|처음엔 "카메라 자세를 찾은 첫 프레임"을 넣었는데, 토끼 인형은 그게 바닥 사진이라 달걀 모양이 나왔다|
+|gausify|https://orbit.gausify.com 을 Playwright로 조작 (H.264로 바꿔 넣고, SAM 2.1 분할 · 분할 영역으로 자세 · Closed orbit · Balanced)|AKAZE로 끝까지 → .ply → COLMAP으로 바꿔 자세부터 다시 → .ply. 자세 장 수 · PSNR은 로그에서 읽는다. 외부 웹 서비스라 화면이 바뀌면 고쳐야 한다|
 |export_viewer|방법마다 물체 중심 · 위쪽 · 정면을 구해 뷰어 좌표(중심 = 원점, 위 = +Y, 반지름 1)로 옮기는 행렬, SfM 카메라 375개(영상 시간 · 위치 · 회전), SAM 3D 입력 사진 시점|SAM 3D는 입력 사진의 카메라 좌표(x 왼쪽 · y 위 · z 앞)로 나온다. 초점거리는 가우시안을 입력 마스크에 투영해 가장 잘 겹치는 값(1,090px, IoU 0.85). Gausify는 카메라 정보가 없어 .ply 머리의 `Vertical axis`만 쓴다|
 
-## 이 영상의 결과 (포치타 인형)
+## 동영상 1 — 포치타 인형 (손에 들고 돌림)
 
 |단계|결과|
 |--|--|
@@ -67,7 +83,7 @@ uv run python export_viewer.py --id pochita
 
 정면 얼굴 · 톱 · 꼬리는 알아볼 수 있지만, 옆 · 뒤 가장자리에 반투명 잡티가 남고 손에 닿았던 바닥은 거칠다. 같은 영상에서 SfM은 실행마다 조금씩 달라서 PSNR도 1~2dB 흔들린다.
 
-## 비교: SAM 3D Objects (사진 1장 → 3D)
+### SAM 3D Objects (사진 1장 → 3D)
 
 같은 영상의 첫 프레임(0001) 한 장과 SAM 3 마스크(`assets/pochita/sam3d_input/`)를 넣었다.
 
@@ -86,7 +102,7 @@ conda run -n sam3d-objects python sam3d.py --image $A/sam3d_input/0001.jpg --mas
 |찍힌 면|실제 모양 (톱 · 꼬리 · 태그까지), 가장자리 잡티|입력 사진 쪽은 깨끗|
 |안 찍힌 면|영상에 있으면 실제대로|모델이 추정 — 꼬리가 없고 톱 모양 · 몸통 비율이 실제와 다름, 색이 더 진함|
 
-## 비교: Gausify Orbit (같은 영상)
+### Gausify Orbit (같은 영상)
 
 [Gausify Orbit](https://github.com/obraia/gausify-orbit) (MIT)는 브라우저(WebGPU)에서 둘레 영상 → 선명한 프레임 160장 → SAM 2.1 분할 → 카메라 자세(AKAZE 또는 COLMAP) → Brush 학습까지 하는 도구다. 분할 SAM 2.1, "Also use the cutout for poses" 켬(손으로 돌려서 배경으로는 자세를 못 구한다), Closed orbit(360°) 켬, Balanced(15,000번)로 돌려 받은 .ply가 `assets/pochita/gausify_*.ply`다.
 
@@ -105,6 +121,36 @@ uv run python render_ply.py $A/gausify_colmap.ply --out $A/turntable/gausify_col
 
 - 브라우저가 HEVC 영상을 못 읽어서 H.264로 바꿔 넣었다 (`ffmpeg -i in.mp4 -c:v libx264 -preset medium -crf 16 -pix_fmt yuv420p -an out.mp4`)
 - 헤드리스 Chrome은 `--enable-unsafe-webgpu --enable-features=Vulkan,VulkanFromANGLE --use-angle=vulkan --use-gl=angle --disable-vulkan-surface --disable-gpu-sandbox --ignore-gpu-blocklist`를 줘야 WebGPU가 NVIDIA GPU를 잡았다 (없으면 CPU의 SwiftShader)
+
+## 동영상 2 — 피규어 (회전판)
+
+투명 회전판 위에서 도는 피규어를 고정한 휴대폰으로 찍었다 (26.7초, 1080×1440, 30fps). `./run.sh`로 그대로 만들었다.
+
+|단계|결과|
+|--|--|
+|SAM 3 분할|프롬프트 auto → "figurine" (점수 0.90, "toy" 0.83 · "plush toy" 0), 801프레임 모두에서 찾음|
+|SfM|341장 모두 한 모델 (특징점 이미지당 152개, 재투영 오차 1.19px, 점 1,770개)|
+|학습 · 정리|140장으로 15,000번 → 15.6만 개, 확인용 20장 PSNR 정리 전 30.7dB → 정리 후 30.2dB, 15분|
+|SAM 3D|0652.jpg (얼굴이 가장 잘 보이는 사진), 추론 38초 → 66.5만 개|
+|Gausify AKAZE|160/160장 (특징점 이미지당 2,808개), 확인용 10장 30.4dB, 21분|
+|Gausify COLMAP|149/160장 (2조각), 확인용 10장 21.0dB, 자세부터 12분|
+
+무늬가 뚜렷한 단단한 피규어라 네 방법 모두 한 바퀴가 이어졌다.
+
+## 동영상 3 — 토끼 인형 (양손으로 돌림)
+
+책상 위 인형을 양손으로 굴려 가며 찍었다 (34.5초, 1080×1080, 30fps).
+
+|단계|결과|
+|--|--|
+|SAM 3 분할|프롬프트 auto → "plush toy", 1,034프레임 중 1,033장|
+|SfM|437장 중 208장이 한 모델 (특징점 이미지당 96개, 재투영 오차 0.96px, 점 968개)|
+|학습 · 정리|140장으로 15,000번 → 6.9만 개, 확인용 20장 PSNR 정리 전 24.7dB → 정리 후 20.2dB, 16분|
+|SAM 3D|0440.jpg (얼굴), 추론 32초 → 54.4만 개. 처음 고른 0033.jpg는 바닥 사진이라 달걀 모양이 나왔다|
+|Gausify AKAZE|2/160장 (특징점 이미지당 99개) — 학습하지 못함|
+|Gausify COLMAP|16/160장 (7조각), 확인용 1장 23.3dB (좁은 구간), 자세부터 7분|
+
+동영상 1과 같이 털 인형을 손으로 돌려서, 굿즈 표면의 특징점이 약하고 손이 자주 가린다. 받침에 세우고 휴대폰이 둘레를 도는 촬영(앱 자동 촬영 가이드)이 낫다.
 
 ## 해 봤지만 쓰지 않은 것
 
