@@ -1,6 +1,6 @@
-# pipeline — 굿즈 360° 영상 → 3D 에셋 4가지
+# pipeline — 굿즈 360° 영상 → 3D 에셋 4가지 + 볼록 스티커
 
-굿즈를 한 바퀴 찍은 영상(또는 사진)으로 3D를 4가지 방법(이 저장소의 가우시안 스플래팅 · SAM 3D · Gausify COLMAP · Gausify AKAZE)으로 만들고, 뷰어 데이터를 내보낸다.
+굿즈를 한 바퀴 찍은 영상(또는 사진)으로 3D를 4가지 방법(이 저장소의 가우시안 스플래팅 · SAM 3D · Gausify COLMAP · Gausify AKAZE)으로 만들고, SAM 3D 결과로 다꾸용 볼록 스티커(.glb)를 만들어 뷰어 데이터를 내보낸다.
 GPU(CUDA)가 있는 PC에서 미리 돌리는 오프라인 작업이다. [goodmorning](https://github.com/bloodmoon3929/goodmorning)의 `backend/ai/asset3d`를 옮겨 와 자동화를 더했다.
 
 ```mermaid
@@ -11,6 +11,7 @@ flowchart LR
     r --> x["render_ply · compare<br/>methods.json<br/>export_viewer.py"]
     d --> x
     g --> x
+    d --> k["sticker.py<br/>볼록 스티커 .glb"]
 ```
 
 ## 실행
@@ -29,8 +30,8 @@ flowchart LR
 |1|frames → segment(`--prompt auto`, 800장 안팎이 되게 간격) → sfm → views(160장) → train(15,000번) → render|`gs.ply` · `sfm/`|둘 다 있으면|
 |2|pick_photo → sam3d (conda 환경 `sam3d-objects`의 python을 직접 부른다)|`sam3d.ply` · `sam3d_input/`|`sam3d.ply`가 있으면|
 |3 · 4|gausify (AKAZE로 끝까지 → COLMAP으로 자세부터 다시)|`gausify_*.ply` · `.log` · `gausify.json`|`gausify.json`이 있거나 .ply가 둘 다 있으면|
-|5|render_ply(72장씩) → compare → methods.json → export_viewer|`turntable/` · `compare.jpg` · `viewer/data/<id>/`|회전 렌더는 72장이 있으면. methods.json은 손으로 쓴 것(`"auto"` 없음)이면 그대로|
-|6|index.json|뷰어 상단 탭 (동영상 1 · 2 · 3, 사진 1 …)|—|
+|5|render_ply(72장씩) → compare → methods.json → sticker → export_viewer|`turntable/` · `compare.jpg` · `sticker.glb` · `viewer/data/<id>/`|회전 렌더는 72장이 있으면. methods.json은 손으로 쓴 것(`"auto"` 없음)이면 그대로. 스티커는 `sticker.glb`가 있으면 (SAM 3D를 다시 만들면 스티커도 다시)|
+|6|index.json|뷰어 상단 탭 (동영상 1 · 2 · 3, 사진 1 … · 스티커)|—|
 
 한 방법이 실패해도 나머지는 계속한다. 만들지 못한 방법(예: Gausify가 자세를 2장만 찾음)은 methods.json에 이유를 남기고 뷰어에 "만들지 못함"으로 보인다.
 
@@ -52,6 +53,7 @@ uv run python train.py --work $W --steps 15000
 uv run python render.py --work $W --out $W/turn --ply $A/gs.ply
 uv run python pick_photo.py --work $W                            # → $W/sam3d_frame.txt
 uv run python gausify.py ../input/20261123_091242.mp4 --out $A   # 헤드리스 Chrome + WebGPU
+uv run python sticker.py --id pochita --debug /tmp/sticker.jpg   # SAM 3D → $A/sticker.glb (미리보기: 색 · 높이 · 음영)
 uv run python export_viewer.py --id pochita
 ```
 
@@ -69,6 +71,7 @@ uv run python export_viewer.py --id pochita
 |render|학습 사진에서 마스크 밖에 놓이는 비율이 25% 넘는 가우시안 · 너무 큰 조각을 지우고, 서로 붙어 있는 가장 큰 덩어리만 남긴다|가장자리의 반투명 "지느러미"와, 카메라 가까이에 생긴 작은 복사본 덩어리를 지운다. 확인용 사진은 정리에도 쓰지 않고 PSNR만 잰다|
 |pick_photo|SAM 3D에 넣을 사진: 굿즈가 잘 잡히고 선명한 프레임 24장에서 SAM 3로 "face"를 찾아, 굿즈 안의 얼굴 점수가 가장 높은 사진 (없으면 가장 크게 찍힌 사진). .json의 `sam3d_frame`으로 직접 정할 수 있다|처음엔 "카메라 자세를 찾은 첫 프레임"을 넣었는데, 토끼 인형은 그게 바닥 사진이라 달걀 모양이 나왔다|
 |gausify|https://orbit.gausify.com 을 Playwright로 조작 (H.264로 바꿔 넣고, SAM 2.1 분할 · 분할 영역으로 자세 · Closed orbit · Balanced)|AKAZE로 끝까지 → .ply → COLMAP으로 바꿔 자세부터 다시 → .ply. 자세 장 수 · PSNR은 로그에서 읽는다. 외부 웹 서비스라 화면이 바뀌면 고쳐야 한다|
+|sticker|SAM 3D 가우시안을 입력 사진 시점에서 그려(색 · 알파 · 깊이) → 굿즈 윤곽에서 3.5% 바깥을 흰 테두리 칼선으로(오목한 곳은 메워 매끈하게) → 높이 = 칼선에서 둥글게 올라오는 돔(긴 변의 3%) + SAM 3D 깊이를 0~1로 눌러 담은 부조(5%) → 4px 격자 메시 + 유광 재질(glTF `KHR_materials_clearcoat`, 코팅 거칠기 0.04)|긴 변 6cm · 가장 높은 곳 4.3mm인 .glb 한 파일(2.5~3.1MB). 칼선 모양은 텍스처 알파(MASK)로 잘라 격자 계단이 보이지 않게. 다른 glTF 뷰어에서도 열린다|
 |export_viewer|방법마다 물체 중심 · 위쪽 · 정면을 구해 뷰어 좌표(중심 = 원점, 위 = +Y, 반지름 1)로 옮기는 행렬, SfM 카메라 375개(영상 시간 · 위치 · 회전), SAM 3D 입력 사진 시점|SAM 3D는 입력 사진의 카메라 좌표(x 왼쪽 · y 위 · z 앞)로 나온다. 초점거리는 가우시안을 입력 마스크에 투영해 가장 잘 겹치는 값(1,090px, IoU 0.85). Gausify는 카메라 정보가 없어 .ply 머리의 `Vertical axis`만 쓴다|
 
 ## 동영상 1 — 포치타 인형 (손에 들고 돌림)

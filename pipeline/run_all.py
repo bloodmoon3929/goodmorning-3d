@@ -10,10 +10,11 @@ input/ 안의 것 하나 = 굿즈 하나
 
 굿즈마다 assets/<id>/에 결과 4가지를 만든다. 이미 있는 결과는 건너뛴다 (--force면 처음부터).
   1 가우시안 스플래팅 (이 저장소): frames → segment → sfm → views → train → render → gs.ply · sfm/
-  2 SAM 3D Objects: 첫 SfM 프레임 1장 + 마스크 → sam3d.ply (conda 환경 sam3d-objects가 있을 때)
+  2 SAM 3D Objects: 굿즈 얼굴이 잘 보이는 사진 1장(pick_photo.py) + 마스크 → sam3d.ply (conda 환경 sam3d-objects가 있을 때)
   3 · 4 Gausify Orbit: AKAZE · COLMAP 자세 → gausify_*.ply (google-chrome이 있을 때)
-  그 뒤 같은 렌더러로 72장씩(turntable/) · 비교 그림(compare.jpg) · 설명(methods.json) → export_viewer.py
-마지막으로 viewer/data/index.json (뷰어 상단 탭: 동영상 1 · 2 · 3 …)
+  그 뒤 같은 렌더러로 72장씩(turntable/) · 비교 그림(compare.jpg) · 설명(methods.json)
+  · SAM 3D로 만든 다꾸용 볼록 스티커(sticker.py → sticker.glb) → export_viewer.py
+마지막으로 viewer/data/index.json (뷰어 상단 탭: 동영상 1 · 2 · 3 … · 스티커)
 """
 
 import argparse
@@ -282,6 +283,7 @@ def process(item: dict, args, gpu: str) -> None:
             (a / "sam3d.json").unlink()
             (a / "sam3d_object.ply").unlink(missing_ok=True)  # 물체 자체 좌표(참고용, 60MB)는 두지 않는다
             shutil.rmtree(a / "turntable" / "sam3d", ignore_errors=True)
+            (a / "sticker.glb").unlink(missing_ok=True)  # 새 SAM 3D로 스티커도 다시
             save()
 
     # 3 · 4 Gausify Orbit
@@ -351,6 +353,12 @@ def process(item: dict, args, gpu: str) -> None:
         save()
 
     write_methods(item, a, state, gzs)
+    # SAM 3D → 다꾸용 볼록 스티커 (뷰어 '스티커' 탭)
+    if (a / "sam3d.ply").exists() and (args.force or not (a / "sticker.glb").exists()):
+        try:
+            py("sticker.py", "--id", iid)
+        except subprocess.CalledProcessError as e:
+            print(f"!!! 스티커 실패 (나머지는 계속): {e}", flush=True)
     py("export_viewer.py", "--id", iid)
 
 
@@ -462,18 +470,33 @@ def write_methods(item: dict, a: Path, state: dict, gzs: dict) -> None:
 
 
 def write_index(items: list[dict]) -> None:
-    """뷰어 상단 탭: 종류마다 번호 (동영상 1 · 2 · 3, 사진 1 …)"""
+    """뷰어 상단 탭: 종류마다 번호 (동영상 1 · 2 · 3, 사진 1 …) + 스티커 탭에 넣을 스티커"""
     count = {"video": 0, "photos": 0}
-    tabs = []
+    tabs, stickers = [], []
     for it in items:
         if not (ROOT / "viewer" / "data" / it["id"] / "manifest.json").exists():
             continue
         count[it["kind"]] += 1
         word = "동영상" if it["kind"] == "video" else "사진"
-        tabs.append({"id": it["id"], "tab": f"{word} {count[it['kind']]}", "name": it["name"], "source": it["src"].name})
+        tab = f"{word} {count[it['kind']]}"
+        tabs.append({"id": it["id"], "tab": tab, "name": it["name"], "source": it["src"].name})
+        a = ROOT / "assets" / it["id"]
+        if (a / "sticker.glb").exists() and (a / "sticker.json").exists():
+            info = json.loads((a / "sticker.json").read_text(encoding="utf-8"))
+            stickers.append(
+                {
+                    "id": it["id"],
+                    "tab": tab,
+                    "name": it["name"],
+                    "glb": f"../assets/{it['id']}/sticker.glb",
+                    "thumb": f"../assets/{it['id']}/sticker.png",
+                    "from": info["from"],
+                    "max_height_mm": info["max_height_mm"],
+                }
+            )
     out = ROOT / "viewer" / "data" / "index.json"
-    out.write_text(json.dumps({"items": tabs}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    print("saved", out, [t["tab"] for t in tabs])
+    out.write_text(json.dumps({"items": tabs, "stickers": stickers}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print("saved", out, [t["tab"] for t in tabs], "스티커", len(stickers))
 
 
 def main() -> None:
