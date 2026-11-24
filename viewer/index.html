@@ -21,17 +21,20 @@
 <header class="top">
   <div>
     <h1>goodmorning-3d</h1>
-    <p class="lead">굿즈 360° 영상 → 3D. 원본 영상과 3D 결과를 같은 시점에서 대조해 본다.</p>
+    <p class="lead">굿즈 360° 영상 하나로 3D를 4가지 방법으로 만들고, 원본 영상과 같은 시점에서 대조해 본다.</p>
   </div>
   <nav class="links">
     <a href="https://github.com/bloodmoon3929/goodmorning-3d">저장소</a>
-    <a id="sourceLink" href="https://github.com/bloodmoon3929/goodmorning-3d/tree/main/capture">원본 영상</a>
+    <a id="sourceLink" href="https://github.com/bloodmoon3929/goodmorning-3d/tree/main/input">원본 영상</a>
   </nav>
 </header>
 
 <main>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="촬영한 영상"></nav>
+
   <section aria-label="3D 방법">
-    <div class="methods" id="methods" role="group" aria-label="3D를 만든 방법"></div>
+    <p class="item-about" id="itemAbout"></p>
+    <div class="methods" id="methods" role="group" aria-label="이 영상으로 만든 3D 4가지"></div>
   </section>
 
   <section class="stage" id="stage" aria-label="원본 영상과 3D">
@@ -87,7 +90,7 @@
 
   <section class="compare" aria-labelledby="compareTitle">
     <h2 id="compareTitle">같은 렌더러 · 같은 각도(45°씩)</h2>
-    <p class="sub">파이프라인의 render_ply.py로 네 결과를 같은 방식으로 돌려 렌더링했다. Gausify는 정면 기준이 없어 0°가 임의다.</p>
+    <p class="sub">pipeline/render_ply.py로 결과를 같은 방식으로 돌려 렌더링했다. Gausify는 정면 기준이 없어 0°가 임의다.</p>
     <img id="compareImg" alt="우리 가우시안 · Gausify COLMAP · Gausify AKAZE · SAM 3D를 0°부터 315°까지 45°씩 렌더링한 비교 그림">
   </section>
 </main>

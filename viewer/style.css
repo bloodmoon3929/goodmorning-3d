@@ -10,7 +10,8 @@
   --sub: #5d6b80;
   --card: #ffffff;
   --stage: #f3ede3;
-  --frame-w: min(calc((100vw - 48px) / 2), calc(70vh * 9 / 16), 380px);
+  --ar: 0.5625; /* 영상 가로/세로 — 뷰어가 영상마다 바꾼다 */
+  --frame-w: min(calc((100vw - 48px) / 2), calc(70vh * var(--ar)), 380px);
   color-scheme: light;
 }
 
@@ -40,8 +41,20 @@ a { color: var(--primary); }
 
 h2 { font-size: 16px; margin: 0 0 8px; color: var(--primary); }
 
+/* 영상 탭 */
+.tabs { display: flex; gap: 6px; overflow-x: auto; border-bottom: 1.5px solid var(--line); margin-top: 4px; }
+.tab {
+  flex: 0 0 auto; border: 0; background: transparent; color: var(--sub); font: inherit; cursor: pointer;
+  padding: 10px 14px 9px; border-bottom: 3px solid transparent; margin-bottom: -1.5px; text-align: left;
+}
+.tab b { display: block; font-size: 15px; color: var(--ink); }
+.tab span { display: block; font-size: 12px; }
+.tab[aria-selected="true"] { border-bottom-color: var(--primary); }
+.tab[aria-selected="true"] b { color: var(--primary); }
+.item-about { margin: 10px 0 0; font-size: 13px; color: var(--sub); }
+
 /* 방법 고르기 */
-.methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin: 8px 0 16px; }
+.methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin: 8px 0 16px; }
 .method {
   text-align: left; border: 1.5px solid var(--line); background: var(--card); color: var(--ink);
   border-radius: 14px; padding: 10px 12px; font: inherit; cursor: pointer;
@@ -50,14 +63,17 @@ h2 { font-size: 16px; margin: 0 0 8px; color: var(--primary); }
 .method[aria-pressed="true"] { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-bg); }
 .method b { display: block; font-size: 14px; }
 .method span { display: block; font-size: 12px; color: var(--sub); }
+.method small { display: block; font-size: 12px; color: var(--ink); margin-top: 4px; line-height: 1.4; }
+.method .no { display: inline-block; min-width: 18px; height: 18px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 11px; text-align: center; line-height: 18px; margin-right: 6px; vertical-align: 1px; }
 .method .tag { display: inline-block; margin-top: 4px; font-size: 11px; padding: 1px 6px; border-radius: 99px; background: var(--mint-bg); color: #0b7a60; }
 .method .tag.off { background: #f1ece4; color: var(--sub); }
+.method .tag.fail { background: #fdecea; color: #b3261e; }
 
 /* 영상 · 3D */
 .stage {
   display: grid; grid-template-columns: repeat(2, var(--frame-w)); justify-content: center; gap: 16px;
 }
-.stage.overlay { grid-template-columns: min(calc(100vw - 32px), calc(76vh * 9 / 16), 460px); }
+.stage.overlay { grid-template-columns: min(calc(100vw - 32px), calc(76vh * var(--ar)), 460px); }
 .stage.overlay #threePane { display: none; }
 .pane { min-width: 0; }
 .cap { font-size: 13px; font-weight: 600; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -67,7 +83,7 @@ h2 { font-size: 16px; margin: 0 0 8px; color: var(--primary); }
 .dot-3d { background: var(--mint); }
 
 .frame {
-  position: relative; width: 100%; aspect-ratio: 9 / 16; border-radius: 16px; overflow: hidden;
+  position: relative; width: 100%; aspect-ratio: var(--ar); border-radius: 16px; overflow: hidden;
   background: var(--stage); border: 1px solid var(--line);
 }
 .frame video, .frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
