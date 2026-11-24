@@ -1,0 +1,19 @@
+{
+ "from": "sam3d.ply (0440.jpg 시점)",
+ "fit": {
+  "focal_px": 850.0,
+  "iou": 0.911
+ },
+ "texture_px": [
+  774,
+  1079
+ ],
+ "size_m": [
+  0.04369,
+  0.0609
+ ],
+ "max_height_mm": 4.33,
+ "vertices": 36954,
+ "triangles": 72932,
+ "bytes": 2486484
+}
