@@ -18,5 +18,34 @@
    "name": "토끼 인형",
    "source": "2026_11_24 08_16.mp4"
   }
+ ],
+ "stickers": [
+  {
+   "id": "pochita",
+   "tab": "동영상 1",
+   "name": "포치타 인형",
+   "glb": "../assets/pochita/sticker.glb",
+   "thumb": "../assets/pochita/sticker.png",
+   "from": "sam3d.ply (0001.jpg 시점)",
+   "max_height_mm": 4.32
+  },
+  {
+   "id": "2026_11_24_08_15",
+   "tab": "동영상 2",
+   "name": "피규어 (회전판)",
+   "glb": "../assets/2026_11_24_08_15/sticker.glb",
+   "thumb": "../assets/2026_11_24_08_15/sticker.png",
+   "from": "sam3d.ply (0652.jpg 시점)",
+   "max_height_mm": 4.31
+  },
+  {
+   "id": "2026_11_24_08_16",
+   "tab": "동영상 3",
+   "name": "토끼 인형",
+   "glb": "../assets/2026_11_24_08_16/sticker.glb",
+   "thumb": "../assets/2026_11_24_08_16/sticker.png",
+   "from": "sam3d.ply (0440.jpg 시점)",
+   "max_height_mm": 4.33
+  }
  ]
 }

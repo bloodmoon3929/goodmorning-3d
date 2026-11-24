@@ -12,6 +12,8 @@
   "imports": {
     "three": "./vendor/three.module.min.js",
     "three/addons/controls/OrbitControls.js": "./vendor/OrbitControls.js",
+    "three/addons/loaders/GLTFLoader.js": "./vendor/addons/loaders/GLTFLoader.js",
+    "three/addons/environments/RoomEnvironment.js": "./vendor/addons/environments/RoomEnvironment.js",
     "@sparkjsdev/spark": "./vendor/spark.module.js"
   }
 }
@@ -32,6 +34,7 @@
 <main>
   <nav class="tabs" id="tabs" role="tablist" aria-label="촬영한 영상"></nav>
 
+  <div id="videoView">
   <section aria-label="3D 방법">
     <p class="item-about" id="itemAbout"></p>
     <div class="methods" id="methods" role="group" aria-label="이 영상으로 만든 3D 4가지"></div>
@@ -92,6 +95,28 @@
     <h2 id="compareTitle">같은 렌더러 · 같은 각도(45°씩)</h2>
     <p class="sub">pipeline/render_ply.py로 결과를 같은 방식으로 돌려 렌더링했다. Gausify는 정면 기준이 없어 0°가 임의다.</p>
     <img id="compareImg" alt="우리 가우시안 · Gausify COLMAP · Gausify AKAZE · SAM 3D를 0°부터 315°까지 45°씩 렌더링한 비교 그림">
+  </section>
+  </div>
+
+  <section class="sticker-view" id="stickerView" aria-label="스티커 판" hidden>
+    <p class="item-about">영상마다 만든 SAM 3D 결과를 다꾸용 볼록 스티커(유광)로 만들었다. 입력 사진 시점의 색에 흰 테두리를 두르고, SAM 3D 깊이를 얕게 눌러 담아 앞으로 나온 곳일수록 볼록하다. 목록에서 판으로 끌어다 붙이거나, 눌러서 판 가운데에 붙인다.</p>
+    <div class="sticker-wrap">
+      <div class="sheet" id="sheet" role="group" aria-label="스티커 목록"></div>
+      <div class="board-frame" id="boardFrame">
+        <canvas id="boardCanvas" aria-label="스티커 판 — 스티커를 끌어 옮기고, 빈 곳을 끌어 판을 기울인다"></canvas>
+        <div class="handles" id="handles" hidden>
+          <button type="button" class="handle handle-del" id="handleDelete" aria-label="고른 스티커 떼기">×</button>
+          <button type="button" class="handle handle-rot" id="handleRotate" aria-label="끌어서 돌리고 크기 바꾸기">↻</button>
+        </div>
+        <div class="loading" id="boardLoading"><p>스티커 불러오는 중</p></div>
+      </div>
+    </div>
+    <div class="row wrap board-tools">
+      <button type="button" class="btn-line" id="boardReset">판 처음 자리로</button>
+      <button type="button" class="btn-line" id="boardClear">모두 떼기</button>
+      <span class="board-status" id="boardStatus" aria-live="polite"></span>
+    </div>
+    <p class="note">스티커를 끌어 원하는 자리에 붙인다. 고른 스티커의 ↻ 손잡이를 끌면 돌리고 크기를 바꾸고, ×(또는 Delete 키)로 뗀다. 빈 곳을 끌면 판이 기울어져 유광 반사가 움직이고, 오른쪽 버튼(또는 Shift)으로 끌거나 두 손가락으로 판을 옮기며, 휠이나 두 손가락 벌리기로 확대한다.</p>
   </section>
 </main>
 

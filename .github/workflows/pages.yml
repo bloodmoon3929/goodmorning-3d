@@ -2,6 +2,7 @@ name: 뷰어 배포 (GitHub Pages)
 
 # main: viewer/와 뷰어가 쓰는 assets/ 파일만 모아 GitHub Pages로 올린다.
 #   뷰어가 쓰는 파일 = viewer/data/*/manifest.json에 적힌 3D 파일 · 회전 렌더 + compare.jpg (영상마다)
+#                    + viewer/data/index.json에 적힌 스티커 (assets/<id>/sticker.glb · sticker.png)
 #   (SAM 3D 원본 .ply 60MB는 올리지 않고 viewer/data의 .splat을 쓴다)
 on:
   push:
@@ -43,6 +44,14 @@ jobs:
                   (site / f).parent.mkdir(parents=True, exist_ok=True)
                   shutil.copy(f, site / f)
               print(d["id"], len(files), "files")
+          # 스티커 탭: viewer/data/index.json의 스티커 .glb · 그림
+          idx = json.loads(Path("viewer/data/index.json").read_text(encoding="utf-8"))
+          for st in idx.get("stickers", []):
+              for key in ("glb", "thumb"):
+                  f = Path(st[key][3:])
+                  (site / f).parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copy(f, site / f)
+          print("stickers", len(idx.get("stickers", [])))
           PY
           printf '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=viewer/"><a href="viewer/">goodmorning-3d 뷰어</a>\n' > _site/index.html
           du -sh _site

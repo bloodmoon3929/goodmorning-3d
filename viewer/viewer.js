@@ -2,6 +2,7 @@
 //   data/index.json(상단 탭: 동영상 1 · 2 · 3 …)과 data/<id>/manifest.json을 읽는다 (pipeline/run_all.py · export_viewer.py가 만든다).
 //   '영상 카메라 따라가기': 영상 시간에 맞춰 3D 카메라를 SfM이 구한 그 프레임의 카메라 자리로 옮긴다 (사이 프레임은 보간).
 //   SAM 3D는 입력 사진 한 장의 시점, Gausify는 카메라 정보가 없어 자유 회전만.
+//   마지막 탭 '스티커'는 sticker.js (SAM 3D로 만든 볼록 스티커를 판에 붙인다).
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { SparkRenderer, SplatMesh } from '@sparkjsdev/spark';
@@ -16,7 +17,8 @@ const stage = $('#stage');
 const loading = $('#loading');
 
 // want: 사용자가 고른 카메라 모드 (카메라 정보가 없는 방법을 보는 동안에는 잠시 자유 회전)
-const state = { manifest: null, method: null, mesh: null, mode: 'follow', want: 'follow', layout: 'side', mix: 0.6, token: 0, seeking: false };
+const state = { manifest: null, method: null, mesh: null, mode: 'follow', want: 'follow', layout: 'side', mix: 0.6, token: 0, seeking: false, sticker: false };
+const STICKER = 'sticker'; // 스티커 탭 id
 
 // ---------- three.js · Spark ----------
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true });
@@ -239,12 +241,36 @@ function renderFacts() {
 }
 
 // ---------- 영상(탭) ----------
-async function loadItem(id) {
-  const tab = state.index.find((t) => t.id === id) ?? state.index[0];
-  for (const b of document.querySelectorAll('.tab')) b.setAttribute('aria-selected', String(b.dataset.id === tab.id));
+function selectTab(id) {
+  for (const b of document.querySelectorAll('.tab')) {
+    b.setAttribute('aria-selected', String(b.dataset.id === id));
+    if (b.dataset.id === id) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
   const url = new URL(location.href);
-  url.searchParams.set('id', tab.id);
+  url.searchParams.set('id', id);
   history.replaceState(null, '', url);
+}
+
+/** 스티커 탭: 영상 화면을 감추고 스티커 판을 연다 */
+async function showStickers() {
+  selectTab(STICKER);
+  state.sticker = true;
+  video.pause();
+  $('#videoView').hidden = true;
+  $('#stickerView').hidden = false;
+  (await import('./sticker.js')).openStickers(state.stickers);
+}
+
+async function loadItem(id) {
+  if (id === STICKER && state.stickers.length) return showStickers();
+  if (state.sticker) {
+    state.sticker = false;
+    (await import('./sticker.js')).closeStickers();
+    $('#stickerView').hidden = true;
+    $('#videoView').hidden = false;
+  }
+  const tab = state.index.find((t) => t.id === id) ?? state.index[0];
+  selectTab(tab.id);
 
   const mf = await (await fetch(`data/${tab.id}/manifest.json`)).json();
   state.manifest = mf;
@@ -290,10 +316,16 @@ function updateTime(c) {
 }
 
 // ---------- 시작 ----------
-state.index = (await (await fetch('data/index.json')).json()).items;
-$('#tabs').innerHTML = state.index
-  .map((t) => `<button type="button" class="tab" role="tab" data-id="${esc(t.id)}" aria-selected="false"><b>${esc(t.tab)}</b><span>${esc(t.name)}</span></button>`)
-  .join('');
+const idx = await (await fetch('data/index.json')).json();
+state.index = idx.items;
+state.stickers = idx.stickers ?? [];
+$('#tabs').innerHTML =
+  state.index
+    .map((t) => `<button type="button" class="tab" role="tab" data-id="${esc(t.id)}" aria-selected="false"><b>${esc(t.tab)}</b><span>${esc(t.name)}</span></button>`)
+    .join('') +
+  (state.stickers.length
+    ? `<button type="button" class="tab tab-sticker" role="tab" data-id="${STICKER}" aria-selected="false"><b>스티커</b><span>SAM 3D 볼록 스티커 ${state.stickers.length}장</span></button>`
+    : '');
 for (const b of document.querySelectorAll('.tab')) b.addEventListener('click', () => loadItem(b.dataset.id));
 
 for (const b of document.querySelectorAll('[data-mode]')) {
@@ -338,6 +370,7 @@ video.loop = true;
 
 setLayout('side');
 renderer.setAnimationLoop(() => {
+  if (state.sticker) return; // 스티커 탭에서는 영상 쪽을 그리지 않는다
   let c = null;
   if (state.mode === 'follow') c = applyFollow();
   else controls.update();
