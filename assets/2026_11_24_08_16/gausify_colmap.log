@@ -1,0 +1,261 @@
+[frames] 1080x1080 @ 30.00 fps, 34.5s, mp4
+[masks] SAM 2.1 · WebGPU (SAM 2.1 (Meta), Apache-2.0)
+[masks] SAM 2.1: no marking, tracking the object at the center of 00000.jpg
+[masks] SAM 2.1: 0.62 s/frame
+[poses] AKAZE features: mean 99/image in 32.1 s
+[poses] WebGPU matching: 3520 pairs, mean 12 matches in 0.3 s
+[poses] Geometric verification: 623/3520 pairs in 0.6 s
+[poses] Tracks: 1686 (1816 conflicting merges refused, 0 ambiguous observations dropped)
+[poses] Initial pair 00084.jpg + 00086.jpg: 0 points
+[poses] Final BA (threshold 24 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 12 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 6 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 4 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Only 2/160 cameras: trying another initial pair
+[poses] Initial pair 00088.jpg + 00092.jpg: 0 points
+[poses] Final BA (threshold 24 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 12 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 6 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 4 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Only 2/160 cameras: trying another initial pair
+[poses] Initial pair 00056.jpg + 00059.jpg: 0 points
+[poses] Final BA (threshold 24 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 12 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 6 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 4 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Reconstruction: 2/160 cameras, 0 points, mean error 0.00 px, f = 1296.0 in 0.8 s
+[poses] COLMAP SIFT features: mean 38/image in 52.0 s
+[poses] WebGPU SIFT matching: 3520 pairs, mean 4 matches in 0.5 s
+[poses] [colmap] geometric verification in 1.9 s
+[poses] Calibrating view graph with 8 pairs
+[poses] Upgraded 0 / 8 pairs to calibrated through cross-validation
+[poses] 0 cameras rejected in view graph calibration
+[poses] Invalid / total number of two-view geometry: 3 / 8
+[poses] Re-estimating relative poses for 5 pairs
+[poses] [colmap] view graph calibration in 0.0 s
+[poses] Loading rigs...
+[poses]  1 in 0.001s
+[poses] Loading cameras...
+[poses]  1 in 0.000s
+[poses] Loading frames...
+[poses]  160 in 0.001s
+[poses] Loading matches...
+[poses]  204 in 0.001s
+[poses] Loading images...
+[poses]  160 in 0.001s (connected 65, loaded 65)
+[poses] Loading pose priors...
+[poses]  0 in 0.000s
+[poses] Building correspondence graph...
+[poses]  in 0.002s (ignored 4)
+[poses] Decomposing relative poses...
+[poses] Decomposed 200 relative poses (0 failed) in 0.023s
+[poses] Loaded 200 edges into pose graph
+[poses] Marked 87 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Marked 11 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Marked 16 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Marked 6 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Marked 6 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Marked 5 image pairs as invalid with relative rotation error > 10 degrees
+[poses] std::abs(prev_norm - curr_norm) < 1e-12
+[poses] Marked 0 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Marked 3 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Marked 3 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Found 7 connected component(s) after rotation filtering
+[poses] === Reconstructing component 1 / 7 with 16 images ===
+[poses] Loaded 103 edges into pose graph
+[poses] === Running rotation averaging ===
+[poses] Marked 87 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Marked 0 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Rotation averaging done in 0.0047 seconds
+[poses] === Running track establishment ===
+[poses] Established 254 tracks from 1003 observations
+[poses] Kept 161 tracks, discarded 0 due to inconsistency
+[poses] Before filtering: 161, after filtering: 161
+[poses] Track establishment done in 0.0023 seconds
+[poses] === Running global positioning ===
+[poses] Setting up the global positioner problem
+[poses] Requested to use GPU for bundle adjustment, but COLMAP was compiled without CUDA support. Falling back to CPU-based solvers.
+[poses] Solving the global positioner problem
+[poses] Ceres Solver Report: Iterations: 14, Initial cost: 1.027388e+04, Final cost: 5.968299e-03, Termination: CONVERGENCE
+[poses] Global positioning done in 0.0922 seconds
+[poses] === Running iterative bundle adjustment ===
+[poses] Requested to use GPU for bundle adjustment, but COLMAP was compiled without CUDA support. Falling back to CPU-based solvers.
+[poses] Global bundle adjustment iteration 1 / 3, fixed-rotation stage finished
+[poses] Global bundle adjustment iteration 1 / 3 finished
+[poses] Filtering tracks by reprojection ...
+[poses] fewer than 0.1% tracks are filtered, stop the iteration.
+[poses] Filtering tracks by reprojection ...
+[poses] Iterative bundle adjustment done in 0.4663 seconds
+[poses] === Running iterative retriangulation and refinement ===
+[poses] Iterative retriangulation and refinement done in 0.3506 seconds
+[poses] Reconstruction done in 0.9174 seconds
+[poses] === Reconstructing component 2 / 7 with 10 images ===
+[poses] Loaded 21 edges into pose graph
+[poses] === Running rotation averaging ===
+[poses] Marked 13 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Marked 0 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Rotation averaging done in 0.0018 seconds
+[poses] === Running track establishment ===
+[poses] Established 59 tracks from 206 observations
+[poses] Kept 29 tracks, discarded 0 due to inconsistency
+[poses] Before filtering: 29, after filtering: 29
+[poses] Track establishment done in 0.0003 seconds
+[poses] === Running global positioning ===
+[poses] Setting up the global positioner problem
+[poses] Solving the global positioner problem
+[poses] Ceres Solver Report: Iterations: 7, Initial cost: 1.761809e+03, Final cost: 7.397079e-04, Termination: CONVERGENCE
+[poses] Global positioning done in 0.0061 seconds
+[poses] === Running iterative bundle adjustment ===
+[poses] Global bundle adjustment iteration 1 / 3, fixed-rotation stage finished
+[poses] Global bundle adjustment iteration 1 / 3 finished
+[poses] Filtering tracks by reprojection ...
+[poses] fewer than 0.1% tracks are filtered, stop the iteration.
+[poses] Filtering tracks by reprojection ...
+[poses] Iterative bundle adjustment done in 0.0683 seconds
+[poses] === Running iterative retriangulation and refinement ===
+[poses] Iterative retriangulation and refinement done in 0.0915 seconds
+[poses] Reconstruction done in 0.1684 seconds
+[poses] === Reconstructing component 3 / 7 with 9 images ===
+[poses] Loaded 26 edges into pose graph
+[poses] === Running rotation averaging ===
+[poses] Marked 17 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Marked 0 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Rotation averaging done in 0.002 seconds
+[poses] === Running track establishment ===
+[poses] Established 81 tracks from 352 observations
+[poses] Kept 59 tracks, discarded 0 due to inconsistency
+[poses] Before filtering: 59, after filtering: 59
+[poses] Track establishment done in 0.0005 seconds
+[poses] === Running global positioning ===
+[poses] Setting up the global positioner problem
+[poses] Solving the global positioner problem
+[poses] Ceres Solver Report: Iterations: 45, Initial cost: 3.883798e+03, Final cost: 1.407036e-03, Termination: CONVERGENCE
+[poses] Global positioning done in 0.0683 seconds
+[poses] === Running iterative bundle adjustment ===
+[poses] Global bundle adjustment iteration 1 / 3, fixed-rotation stage finished
+[poses] Global bundle adjustment iteration 1 / 3 finished
+[poses] Filtering tracks by reprojection ...
+[poses] fewer than 0.1% tracks are filtered, stop the iteration.
+[poses] Filtering tracks by reprojection ...
+[poses] Iterative bundle adjustment done in 0.1516 seconds
+[poses] === Running iterative retriangulation and refinement ===
+[poses] Iterative retriangulation and refinement done in 0.1618 seconds
+[poses] Reconstruction done in 0.3846 seconds
+[poses] === Reconstructing component 4 / 7 with 9 images ===
+[poses] Loaded 22 edges into pose graph
+[poses] === Running rotation averaging ===
+[poses] Marked 6 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Marked 0 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Rotation averaging done in 0.0016 seconds
+[poses] === Running track establishment ===
+[poses] Established 40 tracks from 224 observations
+[poses] Kept 39 tracks, discarded 0 due to inconsistency
+[poses] Before filtering: 39, after filtering: 39
+[poses] Track establishment done in 0.0004 seconds
+[poses] === Running global positioning ===
+[poses] Setting up the global positioner problem
+[poses] Solving the global positioner problem
+[poses] Ceres Solver Report: Iterations: 8, Initial cost: 2.640959e+03, Final cost: 1.360010e-05, Termination: CONVERGENCE
+[poses] Global positioning done in 0.0094 seconds
+[poses] === Running iterative bundle adjustment ===
+[poses] Global bundle adjustment iteration 1 / 3, fixed-rotation stage finished
+[poses] Global bundle adjustment iteration 1 / 3 finished
+[poses] Filtering tracks by reprojection ...
+[poses] fewer than 0.1% tracks are filtered, stop the iteration.
+[poses] Filtering tracks by reprojection ...
+[poses] Iterative bundle adjustment done in 0.1481 seconds
+[poses] === Running iterative retriangulation and refinement ===
+[poses] Iterative retriangulation and refinement done in 0.1312 seconds
+[poses] Reconstruction done in 0.291 seconds
+[poses] === Reconstructing component 5 / 7 with 5 images ===
+[poses] Loaded 10 edges into pose graph
+[poses] === Running rotation averaging ===
+[poses] Marked 6 image pairs as invalid with relative rotation error > 10 degrees
+[poses] std::abs(prev_norm - curr_norm) < 1e-12
+[poses] Marked 0 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Rotation averaging done in 0.001 seconds
+[poses] === Running track establishment ===
+[poses] Established 40 tracks from 152 observations
+[poses] Kept 28 tracks, discarded 0 due to inconsistency
+[poses] Before filtering: 28, after filtering: 28
+[poses] Track establishment done in 0.0003 seconds
+[poses] === Running global positioning ===
+[poses] Setting up the global positioner problem
+[poses] Solving the global positioner problem
+[poses] Ceres Solver Report: Iterations: 6, Initial cost: 1.565067e+03, Final cost: 7.342233e-05, Termination: CONVERGENCE
+[poses] Global positioning done in 0.005 seconds
+[poses] === Running iterative bundle adjustment ===
+[poses] Global bundle adjustment iteration 1 / 3, fixed-rotation stage finished
+[poses] Global bundle adjustment iteration 1 / 3 finished
+[poses] Filtering tracks by reprojection ...
+[poses] fewer than 0.1% tracks are filtered, stop the iteration.
+[poses] Filtering tracks by reprojection ...
+[poses] Iterative bundle adjustment done in 0.0866 seconds
+[poses] === Running iterative retriangulation and refinement ===
+[poses] Iterative retriangulation and refinement done in 0.1173 seconds
+[poses] Reconstruction done in 0.2105 seconds
+[poses] === Reconstructing component 6 / 7 with 5 images ===
+[poses] Loaded 9 edges into pose graph
+[poses] === Running rotation averaging ===
+[poses] Marked 5 image pairs as invalid with relative rotation error > 10 degrees
+[poses] std::abs(prev_norm - curr_norm) < 1e-12
+[poses] Marked 0 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Rotation averaging done in 0.0009 seconds
+[poses] === Running track establishment ===
+[poses] Established 36 tracks from 118 observations
+[poses] Kept 21 tracks, discarded 0 due to inconsistency
+[poses] Before filtering: 21, after filtering: 21
+[poses] Track establishment done in 0.0002 seconds
+[poses] === Running global positioning ===
+[poses] Setting up the global positioner problem
+[poses] Solving the global positioner problem
+[poses] Ceres Solver Report: Iterations: 8, Initial cost: 1.031047e+03, Final cost: 6.512767e-04, Termination: CONVERGENCE
+[poses] Global positioning done in 0.0042 seconds
+[poses] === Running iterative bundle adjustment ===
+[poses] Global bundle adjustment iteration 1 / 3, fixed-rotation stage finished
+[poses] Global bundle adjustment iteration 1 / 3 finished
+[poses] Filtering tracks by reprojection ...
+[poses] fewer than 0.1% tracks are filtered, stop the iteration.
+[poses] Filtering tracks by reprojection ...
+[poses] Iterative bundle adjustment done in 0.0405 seconds
+[poses] === Running iterative retriangulation and refinement ===
+[poses] Iterative retriangulation and refinement done in 0.093 seconds
+[poses] Reconstruction done in 0.1391 seconds
+[poses] === Reconstructing component 7 / 7 with 3 images ===
+[poses] Loaded 2 edges into pose graph
+[poses] === Running rotation averaging ===
+[poses] std::abs(prev_norm - curr_norm) < 1e-12
+[poses] Marked 0 image pairs as invalid with relative rotation error > 10 degrees
+[poses] std::abs(prev_norm - curr_norm) < 1e-12
+[poses] Marked 0 image pairs as invalid with relative rotation error > 10 degrees
+[poses] Rotation averaging done in 0.0004 seconds
+[poses] === Running track establishment ===
+[poses] Established 38 tracks from 82 observations
+[poses] Kept 6 tracks, discarded 0 due to inconsistency
+[poses] Before filtering: 6, after filtering: 6
+[poses] Track establishment done in 0.0002 seconds
+[poses] === Running global positioning ===
+[poses] Setting up the global positioner problem
+[poses] Solving the global positioner problem
+[poses] Ceres Solver Report: Iterations: 6, Initial cost: 2.101534e+02, Final cost: 7.500121e-07, Termination: CONVERGENCE
+[poses] Global positioning done in 0.0012 seconds
+[poses] === Running iterative bundle adjustment ===
+[poses] Global bundle adjustment iteration 1 / 3, fixed-rotation stage finished
+[poses] Global bundle adjustment iteration 1 / 3 finished
+[poses] Filtering tracks by reprojection ...
+[poses] fewer than 0.1% tracks are filtered, stop the iteration.
+[poses] Filtering tracks by reprojection ...
+[poses] Iterative bundle adjustment done in 0.0091 seconds
+[poses] === Running iterative retriangulation and refinement ===
+[poses] Iterative retriangulation and refinement done in 0.004 seconds
+[poses] Reconstruction done in 0.0151 seconds
+[poses] Kept 7 reconstruction(s), discarded 1 with fewer than 3 registered frames, and failed to reconstruct 0
+[poses] [colmap] global mapper in 2.2 s
+[poses] COLMAP global mapper: 16/160 cameras, 51 points, mean error 0.68 px, f = 8341.7 in 4.3 s
+[train] dataset: 15 training views, 1 for evaluation
+[train] eval at step 2500: PSNR 23.63 dB, SSIM 0.977
+[train] eval at step 5000: PSNR 23.33 dB, SSIM 0.977
+[train] eval at step 7500: PSNR 23.41 dB, SSIM 0.977
+[train] eval at step 10000: PSNR 23.32 dB, SSIM 0.977
+[train] eval at step 12500: PSNR 23.31 dB, SSIM 0.977
+[train] eval at step 15000: PSNR 23.26 dB, SSIM 0.977

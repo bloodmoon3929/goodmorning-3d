@@ -1,0 +1,82 @@
+{
+ "auto": true,
+ "name": "토끼 인형",
+ "video": {
+  "file": "input/2026_11_24 08_16.mp4",
+  "extract_rate": 30.0,
+  "about": "34.5초 영상. frames.py가 30fps로 뽑아서 프레임 N = (N−1)/30초"
+ },
+ "methods": [
+  {
+   "id": "gs",
+   "label": "가우시안 스플래팅",
+   "sub": "이 저장소 파이프라인",
+   "brief": "SAM 3 분할 → ALIKED + LightGlue 자세 → gsplat 학습",
+   "file": "gs.ply",
+   "frame": "sfm",
+   "sfm": "sfm",
+   "facts": {
+    "how": "SAM 3('plush toy')로 굿즈만 분할 → 굿즈 영역의 ALIKED 특징점 · LightGlue 매칭 → COLMAP 카메라 자세 → gsplat 3D 가우시안 스플래팅 15,000번 학습 (손 · 태그가 가린 곳은 빼고) → 실루엣 · 떨어진 덩어리 정리",
+    "input": "영상 프레임 140장 (+ 확인용 20장)",
+    "poses": "ALIKED + LightGlue → COLMAP, 208/437장",
+    "psnr": "20.2dB (학습에 안 쓴 20장)",
+    "time": "16분 (분할 · SfM · 학습 · 렌더, RTX A6000)",
+    "note": ""
+   }
+  },
+  {
+   "id": "sam3d",
+   "label": "SAM 3D Objects",
+   "sub": "사진 1장",
+   "brief": "사진 1장 + 마스크 → 한 번에 3D (안 찍힌 면은 추정)",
+   "file": "sam3d.ply",
+   "web": "sam3d.splat",
+   "frame": "camera",
+   "input": {
+    "image": "sam3d_input/0440.jpg",
+    "mask": "sam3d_input/0440_mask.png",
+    "frame": "0440.jpg"
+   },
+   "facts": {
+    "how": "영상에서 고른 사진 1장(0440.jpg, SAM 3 'face'로 굿즈 얼굴이 가장 잘 보이는 사진을 고름)과 SAM 3 마스크를 SAM 3D Objects에 넣어 한 번에 3D. 안 찍힌 면은 모델이 추정한다",
+    "input": "사진 1장 (0440.jpg) + SAM 3 마스크",
+    "poses": "없음 (입력 사진의 카메라 좌표로 나온다)",
+    "psnr": "—",
+    "time": "추론 32초 + 모델 불러오기 30초 (RTX A6000)",
+    "note": ""
+   }
+  },
+  {
+   "id": "gausify_colmap",
+   "label": "Gausify Orbit",
+   "sub": "COLMAP 자세",
+   "brief": "브라우저 WebGPU · COLMAP SIFT 전역 매핑 → Brush 학습",
+   "file": "gausify_colmap.ply",
+   "frame": "vertical",
+   "facts": {
+    "how": "Gausify Orbit(브라우저 WebGPU): 선명한 프레임 고르기 → SAM 2.1 분할 → COLMAP SIFT · 전역 매핑으로 카메라 자세 → Brush 학습 15,000번 (분할 · 자세 설정은 AKAZE와 같고 자세부터 다시)",
+    "input": "같은 영상 → 선명한 프레임 160장, SAM 2.1 분할",
+    "poses": "COLMAP SIFT · 전역 매핑, 16/160장 (7조각 중 가장 큰 것)",
+    "psnr": "23.3dB (확인용 1장 — 자세를 찾은 좁은 구간 안이라 비교 기준이 아니다)",
+    "time": "자세부터 다시 7분 (브라우저 WebGPU, nvidia ampere)",
+    "note": "카메라 정보가 없어 처음 각도는 임의"
+   }
+  },
+  {
+   "id": "gausify_akaze",
+   "label": "Gausify Orbit",
+   "sub": "AKAZE 자세 (기본)",
+   "brief": "브라우저 WebGPU · AKAZE 증분 SfM → Brush 학습",
+   "failed": "카메라 자세를 2/160장만 찾아 학습하지 못했다 (3D 없음)",
+   "frame": "vertical",
+   "facts": {
+    "how": "Gausify Orbit(브라우저 WebGPU): 선명한 프레임 고르기 → SAM 2.1 분할 → AKAZE 특징점 · 증분 SfM으로 카메라 자세 → Brush 학습 15,000번 (기본 설정, 분할 영역으로 자세 · Closed orbit 켬)",
+    "input": "같은 영상 → 선명한 프레임 160장, SAM 2.1 분할",
+    "poses": "AKAZE, 2/160장",
+    "psnr": "—",
+    "time": "5분 (브라우저 WebGPU, nvidia ampere)",
+    "note": "만들지 못함"
+   }
+  }
+ ]
+}

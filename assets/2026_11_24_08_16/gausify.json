@@ -1,0 +1,29 @@
+{
+ "url": "https://orbit.gausify.com",
+ "webgpu": "nvidia ampere",
+ "settings": "SAM 2.1 분할 · 분할 영역으로 자세 · Closed orbit(360°) · Balanced",
+ "akaze": {
+  "ok": false,
+  "cameras": [
+   2,
+   160
+  ],
+  "psnr": null,
+  "train_views": null,
+  "eval_views": null,
+  "pieces": null,
+  "seconds": 271.1
+ },
+ "colmap": {
+  "ok": true,
+  "cameras": [
+   16,
+   160
+  ],
+  "psnr": 23.26,
+  "train_views": 15,
+  "eval_views": 1,
+  "pieces": 7,
+  "seconds": 411.5
+ }
+}

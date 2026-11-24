@@ -1,0 +1,39 @@
+{
+ "id": "2026_11_24_08_15",
+ "name": "피규어 (회전판)",
+ "kind": "video",
+ "source": "input/2026_11_24 08_15.mp4",
+ "seconds": {
+  "frames": 3.2,
+  "segment": 175.0,
+  "sfm": 199.7,
+  "views": 67.7,
+  "train": 268.9,
+  "render": 160.7
+ },
+ "gs": {
+  "frames": 801,
+  "prompt": "figurine",
+  "sfm_images": 341,
+  "registered": 341,
+  "gaussians": 156251,
+  "psnr": 30.19,
+  "train_views": 140,
+  "holdout": 20,
+  "gpu": "RTX A6000"
+ },
+ "sam3d": {
+  "frame": "0652.jpg",
+  "picked": "SAM 3 'face'로 굿즈 얼굴이 가장 잘 보이는 사진을 고름",
+  "load_sec": 30.4,
+  "infer_sec": 37.8,
+  "gaussians": 664704,
+  "gpu": "RTX A6000"
+ },
+ "compare_rows": [
+  "gs",
+  "gausify_colmap",
+  "gausify_akaze",
+  "sam3d"
+ ]
+}

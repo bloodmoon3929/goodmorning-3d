@@ -1,0 +1,26 @@
+[frames] 1080x1080 @ 30.00 fps, 34.5s, mp4
+[masks] SAM 2.1 · WebGPU (SAM 2.1 (Meta), Apache-2.0)
+[masks] SAM 2.1: no marking, tracking the object at the center of 00000.jpg
+[masks] SAM 2.1: 0.62 s/frame
+[poses] AKAZE features: mean 99/image in 32.1 s
+[poses] WebGPU matching: 3520 pairs, mean 12 matches in 0.3 s
+[poses] Geometric verification: 623/3520 pairs in 0.6 s
+[poses] Tracks: 1686 (1816 conflicting merges refused, 0 ambiguous observations dropped)
+[poses] Initial pair 00084.jpg + 00086.jpg: 0 points
+[poses] Final BA (threshold 24 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 12 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 6 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 4 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Only 2/160 cameras: trying another initial pair
+[poses] Initial pair 00088.jpg + 00092.jpg: 0 points
+[poses] Final BA (threshold 24 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 12 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 6 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 4 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Only 2/160 cameras: trying another initial pair
+[poses] Initial pair 00056.jpg + 00059.jpg: 0 points
+[poses] Final BA (threshold 24 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 12 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 6 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Final BA (threshold 4 px): 0.00 → 0.00 px, f = 1296.0
+[poses] Reconstruction: 2/160 cameras, 0 points, mean error 0.00 px, f = 1296.0 in 0.8 s

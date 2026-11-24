@@ -1,0 +1,34 @@
+[frames] 1080x1440 @ 30.00 fps, 26.7s, mp4
+[masks] SAM 2.1 · WebGPU (SAM 2.1 (Meta), Apache-2.0)
+[masks] SAM 2.1: no marking, tracking the object at the center of 00000.jpg
+[masks] SAM 2.1: 0.59 s/frame
+[poses] AKAZE features: mean 2808/image in 41.3 s
+[poses] WebGPU matching: 3520 pairs, mean 481 matches in 1.1 s
+[poses] Geometric verification: 2485/3520 pairs in 167.3 s
+[poses] Tracks: 52986 (74931 conflicting merges refused, 0 ambiguous observations dropped)
+[poses] Initial pair 00007.jpg + 00150.jpg: 924 points
+[poses] Global BA with 8 cameras: 1.55 → 1.52 px, f = 3064.5
+[poses] Global BA with 10 cameras: 1.60 → 1.60 px, f = 3139.6
+[poses] Global BA with 13 cameras: 1.71 → 1.70 px, f = 3350.6
+[poses] Global BA with 17 cameras: 1.77 → 1.76 px, f = 3443.5
+[poses] Global BA with 22 cameras: 1.84 → 1.84 px, f = 3302.4
+[poses] Global BA with 28 cameras: 1.87 → 1.87 px, f = 3131.2
+[poses] Global BA with 35 cameras: 1.89 → 1.89 px, f = 3123.1
+[poses] Global BA with 44 cameras: 1.85 → 1.85 px, f = 3124.8
+[poses] Global BA with 55 cameras: 1.88 → 1.88 px, f = 3087.8
+[poses] Global BA with 69 cameras: 1.86 → 1.86 px, f = 3105.6
+[poses] Global BA with 87 cameras: 1.84 → 1.84 px, f = 3104.4
+[poses] Global BA with 109 cameras: 1.83 → 1.83 px, f = 3076.3
+[poses] Global BA with 137 cameras: 1.83 → 1.82 px, f = 3100.9
+[poses] Final BA (threshold 24 px): 3.84 → 2.50 px, f = 3144.7
+[poses] Final BA (threshold 12 px): 2.35 → 2.29 px, f = 3149.9
+[poses] Final BA (threshold 6 px): 1.80 → 1.78 px, f = 3139.1
+[poses] Final BA (threshold 4 px): 1.44 → 1.41 px, f = 3125.6
+[poses] Reconstruction: 160/160 cameras, 35501 points, mean error 1.09 px, f = 3125.6 in 371.9 s
+[train] dataset: 150 training views, 10 for evaluation
+[train] eval at step 2500: PSNR 29.39 dB, SSIM 0.945
+[train] eval at step 5000: PSNR 30.02 dB, SSIM 0.949
+[train] eval at step 7500: PSNR 30.01 dB, SSIM 0.950
+[train] eval at step 10000: PSNR 30.17 dB, SSIM 0.951
+[train] eval at step 12500: PSNR 30.23 dB, SSIM 0.951
+[train] eval at step 15000: PSNR 30.37 dB, SSIM 0.951

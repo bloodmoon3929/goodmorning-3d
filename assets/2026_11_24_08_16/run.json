@@ -1,0 +1,38 @@
+{
+ "id": "2026_11_24_08_16",
+ "name": "토끼 인형",
+ "kind": "video",
+ "source": "input/2026_11_24 08_16.mp4",
+ "seconds": {
+  "frames": 3.3,
+  "segment": 183.4,
+  "sfm": 240.2,
+  "views": 75.6,
+  "train": 210.5,
+  "render": 253.4
+ },
+ "gs": {
+  "frames": 1034,
+  "prompt": "plush toy",
+  "sfm_images": 437,
+  "registered": 208,
+  "gaussians": 68656,
+  "psnr": 20.21,
+  "train_views": 140,
+  "holdout": 20,
+  "gpu": "RTX A6000"
+ },
+ "sam3d": {
+  "frame": "0440.jpg",
+  "picked": "SAM 3 'face'로 굿즈 얼굴이 가장 잘 보이는 사진을 고름",
+  "load_sec": 29.7,
+  "infer_sec": 31.6,
+  "gaussians": 543872,
+  "gpu": "RTX A6000"
+ },
+ "compare_rows": [
+  "gs",
+  "gausify_colmap",
+  "sam3d"
+ ]
+}
