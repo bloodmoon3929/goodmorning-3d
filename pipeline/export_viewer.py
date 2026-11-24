@@ -22,9 +22,10 @@ from pathlib import Path
 import cv2
 import numpy as np
 import pycolmap
-from common import largest_cluster
 from PIL import Image
 from plyfile import PlyData
+
+from common import largest_cluster
 
 ROOT = Path(__file__).resolve().parent.parent
 C0 = 0.28209479177387814  # SH 0차 계수
@@ -122,19 +123,31 @@ def write_splat(ply: PlyData, path: Path) -> None:
     out[order].tofile(path)
 
 
-def web_video(src: Path, dst: Path, width: int) -> float:
+def web_video(src: Path, dst: Path, width: int) -> dict:
     """브라우저에서 seek가 잘 되게 H.264 · 1초마다 키프레임. 시간축(가변 프레임)은 그대로"""
     if not dst.exists():
         cmd = ["ffmpeg", "-v", "error", "-y", "-i", str(src), "-vf", f"scale={width}:-2", "-c:v", "libx264", "-preset", "slow"]
         cmd += ["-crf", "24", "-g", "30", "-pix_fmt", "yuv420p", "-vsync", "passthrough", "-movflags", "+faststart", "-an", str(dst)]
         subprocess.run(cmd, check=True)
     out = subprocess.run(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(dst)],
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=width,height:format=duration",
+            "-of",
+            "json",
+            str(dst),
+        ],
         capture_output=True,
         text=True,
         check=True,
     )
-    return float(out.stdout.strip())
+    j = json.loads(out.stdout)
+    return {"duration": round(float(j["format"]["duration"]), 3), "width": j["streams"][0]["width"], "height": j["streams"][0]["height"]}
 
 
 def main() -> None:
@@ -148,7 +161,7 @@ def main() -> None:
     spec = json.loads((assets / "methods.json").read_text(encoding="utf-8"))
     rate = spec["video"]["extract_rate"]
 
-    duration = web_video(ROOT / spec["video"]["file"], out / "video.mp4", args.width)
+    vid = web_video(ROOT / spec["video"]["file"], out / "video.mp4", args.width)
     manifest = {
         "id": args.id,
         "name": spec["name"],
@@ -156,14 +169,18 @@ def main() -> None:
             "url": f"data/{args.id}/video.mp4",
             "source": spec["video"]["file"],
             "about": spec["video"]["about"],
-            "duration": round(duration, 3),
+            **vid,
         },
         "methods": [],
     }
     for m in spec["methods"]:
+        if m.get("failed"):  # 만들지 못한 방법도 이유와 함께 보여 준다
+            manifest["methods"].append({k: m[k] for k in ("id", "label", "sub", "facts", "failed")} | {"brief": m.get("brief", "")})
+            print(m["id"], "만들지 못함:", m["failed"])
+            continue
         ply, xyz, op, sh = load_ply(assets / m["file"])
         center, radius = body(xyz, op)
-        entry = {k: m[k] for k in ("id", "label", "sub", "facts")}
+        entry = {k: m[k] for k in ("id", "label", "sub", "facts")} | {"brief": m.get("brief", "")}
         entry |= {"gaussians": len(xyz), "sh": sh, "download": f"assets/{args.id}/{m['file']}"}
         entry["url"] = f"../assets/{args.id}/{m['file']}"
         entry["bytes"] = (assets / m["file"]).stat().st_size

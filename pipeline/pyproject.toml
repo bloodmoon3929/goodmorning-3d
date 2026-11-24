@@ -1,5 +1,5 @@
 [project]
-name = "goodmorning-asset3d"
+name = "goodmorning-3d-pipeline"
 version = "0.1.0"
 description = "굿즈 360° 촬영 영상 → SAM 3 분할 → SfM 카메라 추정 → 3D 가우시안 스플래팅 → 앱용 회전 그림"
 requires-python = ">=3.12,<3.13"
@@ -21,6 +21,7 @@ dependencies = [
     "psutil",
     "einops",
     "setuptools<80",
+    "playwright>=1.65.2",
 ]
 
 [tool.uv]
